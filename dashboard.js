@@ -79,7 +79,6 @@ function showRecentComplaints() {
         elapsedTimeLabel.textContent = ` ${calculateElapsedTime(complaint.date)} `;
         listItem.appendChild(elapsedTimeLabel);
 
-        
         // Display status of the complaint
         const statusLabel = document.createElement('p');
         statusLabel.textContent = `  Pending`;
@@ -141,8 +140,6 @@ function showPendingComplaints() {
             });
             listItem.appendChild(nameLink);
 
-            
-            
             // Display elapsed time since the complaint date
             const elapsedTimeLabel = document.createElement('p');
             elapsedTimeLabel.textContent = ` ${calculateElapsedTime(complaint.date)} `;
@@ -209,7 +206,6 @@ function showResolvedComplaints() {
             });
             listItem.appendChild(nameLink);
 
-            
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.classList.add('inline-button', 'delete');
@@ -295,6 +291,10 @@ function showDepartmentStatistics() {
     const statisticsList = document.getElementById('department-statistics-list');
     statisticsList.innerHTML = '';
 
+    // Variables to track departments with the highest percentage
+    let maxPercentage = -1;
+    let departmentsWithMaxPercentage = [];
+
     for (const [department, count] of Object.entries(departmentCounts)) {
         const percentage = totalComplaints > 0 ? ((count / totalComplaints) * 100).toFixed(0) : 0;
 
@@ -310,32 +310,28 @@ function showDepartmentStatistics() {
         listItem.appendChild(countText);
 
         statisticsList.appendChild(listItem);
-    }
 
-    // Concluding statement based on statistics
-    const highestPercentageDepartment = getDepartmentWithHighestPercentage(departmentCounts, totalComplaints);
-    const conclusionText = document.createElement('p');
-    conclusionText.textContent = `According to the department statistics, ${highestPercentageDepartment} has the highest percentage of complaints.`;
-    
-    statisticsList.appendChild(conclusionText);
-}
-
-// Function to determine department with the highest percentage of complaints
-function getDepartmentWithHighestPercentage(departmentCounts, totalComplaints) {
-    let maxPercentage = -1;
-    let departmentWithMaxPercentage = '';
-
-    for (const [department, count] of Object.entries(departmentCounts)) {
-        const percentage = totalComplaints > 0 ? (count / totalComplaints) * 100 : 0;
+        // Update max percentage and departments if found new maximum
         if (percentage > maxPercentage) {
             maxPercentage = percentage;
-            departmentWithMaxPercentage = department;
+            departmentsWithMaxPercentage = [department];
+        } else if (percentage === maxPercentage) {
+            departmentsWithMaxPercentage.push(department);
         }
     }
 
-    return departmentWithMaxPercentage;
-}
+    // Concluding statement based on statistics
+    let conclusionText = '';
+    if (departmentsWithMaxPercentage.length === 1) {
+        conclusionText = `According to the department statistics, ${departmentsWithMaxPercentage[0]} has the highest percentage of complaints.`;
+    } else {
+        conclusionText = `According to the department statistics, ${departmentsWithMaxPercentage.join(' & ')} have the highest percentage of complaints.`;
+    }
 
+    const conclusionElement = document.createElement('p');
+    conclusionElement.textContent = conclusionText;
+    statisticsList.appendChild(conclusionElement);
+}
 
 // Initialize dashboard display on page load
 showDashboard();
